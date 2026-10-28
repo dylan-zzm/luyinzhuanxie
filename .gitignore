@@ -10,3 +10,5 @@ cases/**/*.mp4
 cases/**/*.ogg
 cases/**/*.flac
 cases/**/*.webm
+# 语音模型（约 260MB），首次转写时自动从 GitHub 下载
+models/

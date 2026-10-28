@@ -1,3 +1,4 @@
+sherpa-onnx>=1.12
+numpy
+# 仅 api 后端需要：
 requests>=2.31
-# 仅 local 后端需要：
-# faster-whisper>=1.0

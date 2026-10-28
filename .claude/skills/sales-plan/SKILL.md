@@ -17,6 +17,7 @@ python scripts/prompt_admin.py status
   “目前还没有设置最新版的方案 prompt，请把最新版 prompt 直接粘贴给我。”
   拿到后写入 `cases/.incoming_prompt.md`（临时文件），运行
   `python scripts/prompt_admin.py set cases/.incoming_prompt.md`，然后删除临时文件，告诉对方新版本号。
+  再把新 prompt 里的服务名称、价格同步到 `prompts/glossary.md`（替换旧的服务列表）。
   **没有 prompt 就不要生成方案**；`prompts/history/v0-旧版方案示例.md` 只是旧版示例，不能当 prompt 用。
 - 任何时候有人说“更新 prompt / 换新版方案模板”并给出内容，同样用 `set` 替换（旧版会自动归档）。
 - 输出 `OK`：读完整份 `prompts/plan_prompt.md`，后面两步都以它为准。
@@ -31,11 +32,16 @@ python scripts/prompt_admin.py status
    ```bash
    python scripts/transcribe.py cases/<目录>/<录音文件> --out cases/<目录>/transcript.md
    ```
-   - 报“缺少 STT_API_KEY”或网络 403：说明转写服务没配好，告诉销售需要管理员按 README 配置；
-     同时提供替代方案——把飞书妙记 / 通义听悟 / 讯飞听见等导出的文字稿直接粘贴过来。
+   - 默认用项目内的本地小模型（SenseVoice + 说话人分离），免费离线；1 小时录音约 5 分钟，命令超时要设长一些。
+     缺依赖先 `pip install -r requirements.txt`；首次运行会自动下载模型（约 260MB）。
+   - 销售说有 3 人及以上参与（如客户带家长）：加 `--speakers <人数>`，不确定就 `--speakers -1`。
+   - 模型下载失败（网络被拦）：如实告诉销售，让管理员按 README 放行 `github.com`；
+     同时提供替代方案——把飞书妙记 / 通义听悟等导出的文字稿直接粘贴过来。
    - 销售直接给文字稿：原样存为 `cases/<目录>/transcript.md`。
    - **绝不编造录音内容**。转写失败就如实说失败。
-4. 通读文字稿。机器转写不区分说话人，根据语境判断哪些是销售、哪些是客户；同音错字（尤其服务名、公司名、岗位名）按语境理解，拿不准的列入确认单。
+4. 通读文字稿，对照 `prompts/glossary.md` 理解：
+   - 说话人 A/B 是模型按声音分的，根据内容判断谁是销售（介绍服务、报价的一方）、谁是客户，在确认单里写明。
+   - 同音错字（尤其服务名、公司名、岗位名）按术语表和语境纠正，拿不准的列入确认单的“转写存疑处”。
 
 ## 第 2 步：预生成确认单（停下来等确认）
 

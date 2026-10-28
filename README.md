@@ -17,21 +17,21 @@
 以后要换新版，直接对 Claude 说“更新方案 prompt”并粘贴新内容，旧版自动归档到 `prompts/history/`。
 （`prompts/history/v0-旧版方案示例.md` 是旧版方案成品，仅供对照。）
 
-### 2. 配置录音转写
+### 2. 录音转写（默认无需配置）
 ```bash
-cp config.env.example config.env
 pip install -r requirements.txt
 ```
-在 `config.env` 里选一种：
+默认使用**项目内部署的本地小模型**，免费、不需要 API Key：
 
-| 方案 | 配置 | 说明 |
-|---|---|---|
-| 硅基流动 SenseVoice（默认，中文推荐） | `STT_BASE_URL=https://api.siliconflow.cn/v1`，填 `STT_API_KEY` | 国内可用，便宜 |
-| OpenAI | `STT_BASE_URL=https://api.openai.com/v1`，`STT_MODEL=gpt-4o-transcribe` | |
-| Groq | `STT_BASE_URL=https://api.groq.com/openai/v1`，`STT_MODEL=whisper-large-v3` | 快 |
-| 本机 faster-whisper | `STT_BACKEND=local`，`pip install faster-whisper` | 不用 API Key，但要能下载模型、CPU 慢 |
+- **SenseVoice**（阿里开源的中文语音识别模型，自带标点），通过 sherpa-onnx 在 CPU 上运行；
+- **说话人分离**（pyannote + 3D-Speaker），文字稿按“说话人A / 说话人B”分段，Claude 再判断谁是销售、谁是客户。
 
-**云端环境注意**：Claude Code 云端会话默认网络受限，需要在环境设置的 Network access 里放行所用转写服务的域名（如 `api.siliconflow.cn`；本机模型则放行 `huggingface.co`）。API Key 建议放到环境变量 `STT_API_KEY` 中，不要提交到仓库。
+模型首次转写时自动从 GitHub 下载到 `models/`（约 260MB，不入库）。在 4 核 CPU 上，1 小时录音约 5 分钟转完。
+默认按 2 人（销售 + 客户）区分；多人通话可在 `config.env` 里改 `STT_SPEAKERS`。
+
+机器转写仍可能有同音错字，尤其是专有名词。`prompts/glossary.md` 是术语表，Claude 读文字稿时据此纠正；建议把服务名称、常见岗位名维护进去。
+
+**备用：在线接口**。复制 `config.env.example` 为 `config.env`，设 `STT_BACKEND=api` 并填写 `STT_API_KEY`，可改用 Groq、OpenAI、硅基流动等兼容 OpenAI 格式的接口（需在云端环境的 Network access 中放行对应域名）。
 
 ## 目录结构
 
@@ -40,8 +40,10 @@ CLAUDE.md                          Claude 的总规则
 .claude/skills/sales-plan/SKILL.md 完整工作流（转写 → 确认单 → 方案）
 prompts/plan_prompt.md             当前生效的方案 prompt
 prompts/history/                   历史 prompt 版本
+prompts/glossary.md                术语表（纠正转写错字）
 templates/brief_template.md        预生成确认单模板
-scripts/transcribe.py              录音转文字（自动切片、带时间戳）
+scripts/transcribe.py              录音转文字（本地模型、区分说话人、带时间戳）
+models/                            语音模型（自动下载，不入库）
 scripts/prompt_admin.py            prompt 版本管理：status / set / history
 cases/YYYYMMDD-客户/               每个客户：transcript.md、brief.md、feedback.md、plan.md
 ```

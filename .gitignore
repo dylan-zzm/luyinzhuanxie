@@ -1,0 +1,12 @@
+config.env
+__pycache__/
+# 录音文件体积大且含客户隐私，不入库；文字稿和方案保留
+cases/**/*.m4a
+cases/**/*.mp3
+cases/**/*.wav
+cases/**/*.aac
+cases/**/*.amr
+cases/**/*.mp4
+cases/**/*.ogg
+cases/**/*.flac
+cases/**/*.webm

@@ -17,16 +17,18 @@
 以后要换新版，直接对 Claude 说“更新方案 prompt”并粘贴新内容，旧版自动归档到 `prompts/history/`。
 （`prompts/history/v0-旧版方案示例.md` 是旧版方案成品，仅供对照。）
 
-### 2. 录音转写（默认无需配置）
-```bash
-pip install -r requirements.txt
-```
+### 2. 录音转写（只需配置一次云端环境）
+把 `scripts/cloud_setup.sh` 的全部内容粘贴到云端环境设置的 **Setup script** 中（会话标题栏的环境菜单 → Edit → Setup script），保存。
+它会预装依赖、预下载语音模型，云端把结果做成快照缓存，之后**每个新会话启动时模型已就绪**，销售发来录音即可立刻转写。
+缓存约每 7 天或修改环境设置后自动重建（约 20 秒）。万一模型缺失，转写脚本也会自动补下载。
+
+本地电脑使用则执行 `pip install -r requirements.txt`，模型首次转写时自动下载。
 默认使用**项目内部署的本地小模型**，免费、不需要 API Key：
 
 - **SenseVoice**（阿里开源的中文语音识别模型，自带标点），通过 sherpa-onnx 在 CPU 上运行；
 - **说话人分离**（pyannote + 3D-Speaker），文字稿按“说话人A / 说话人B”分段，Claude 再判断谁是销售、谁是客户。
 
-模型首次转写时自动从 GitHub 下载到 `models/`（约 260MB，不入库）。在 4 核 CPU 上，1 小时录音约 5 分钟转完。
+模型约 260MB，放在 `~/.cache/sales-plan-assistant/models`（不入库）。在 4 核 CPU 上，1 小时录音约 5 分钟转完。
 默认按 2 人（销售 + 客户）区分；多人通话可在 `config.env` 里改 `STT_SPEAKERS`。
 
 机器转写仍可能有同音错字，尤其是专有名词。`prompts/glossary.md` 是术语表，Claude 读文字稿时据此纠正；建议把服务名称、常见岗位名维护进去。
@@ -43,7 +45,7 @@ prompts/history/                   历史 prompt 版本
 prompts/glossary.md                术语表（纠正转写错字）
 templates/brief_template.md        预生成确认单模板
 scripts/transcribe.py              录音转文字（本地模型、区分说话人、带时间戳）
-models/                            语音模型（自动下载，不入库）
+scripts/cloud_setup.sh             云端环境初始化脚本（预装依赖和模型）
 scripts/prompt_admin.py            prompt 版本管理：status / set / history
 cases/YYYYMMDD-客户/               每个客户：transcript.md、brief.md、feedback.md、plan.md
 ```

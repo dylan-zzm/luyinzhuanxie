@@ -33,7 +33,7 @@ python scripts/prompt_admin.py status
    python scripts/transcribe.py cases/<目录>/<录音文件> --out cases/<目录>/transcript.md
    ```
    - 默认用项目内的本地小模型（SenseVoice + 说话人分离），免费离线；1 小时录音约 5 分钟，命令超时要设长一些。
-     缺依赖先 `pip install -r requirements.txt`；首次运行会自动下载模型（约 260MB）。
+     云端环境的初始化脚本已预装依赖和模型；若提示缺依赖，先 `pip install -r requirements.txt`，缺模型脚本会自动下载。
    - 销售说有 3 人及以上参与（如客户带家长）：加 `--speakers <人数>`，不确定就 `--speakers -1`。
    - 模型下载失败（网络被拦）：如实告诉销售，让管理员按 README 放行 `github.com`；
      同时提供替代方案——把飞书妙记 / 通义听悟等导出的文字稿直接粘贴过来。

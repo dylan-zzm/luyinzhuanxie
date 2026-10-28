@@ -8,7 +8,7 @@
   local（默认）—— 项目内部署的小模型，免费、离线：
            sherpa-onnx + SenseVoice（阿里开源中文识别模型，带标点）
            + pyannote 分段 / 3D-Speaker 声纹（区分说话人：销售 vs 客户）。
-           模型首次使用时自动从 GitHub 下载到 models/（约 190MB）。
+           模型放在 ~/.cache/sales-plan-assistant/models（约 260MB），缺失时自动从 GitHub 下载。
   api   —— 任何兼容 OpenAI `/audio/transcriptions` 的在线接口（Groq、OpenAI、硅基流动等），作为备用。
 """
 import argparse
@@ -25,7 +25,8 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MODELS = ROOT / "models"
+# 模型放在仓库外的固定位置，云端环境的初始化脚本预先下载到这里，新会话直接可用
+MODELS = Path(os.environ.get("STT_MODEL_DIR", Path.home() / ".cache" / "sales-plan-assistant" / "models"))
 SAMPLE_RATE = 16000
 RELEASES = "https://github.com/k2-fsa/sherpa-onnx/releases/download"
 SENSE_VOICE = "sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17"
@@ -69,7 +70,7 @@ def probe_duration(path):
 
 def ensure_models():
     """缺模型时从 sherpa-onnx 的 GitHub Releases 下载。"""
-    MODELS.mkdir(exist_ok=True)
+    MODELS.mkdir(parents=True, exist_ok=True)
     downloads = [
         (MODELS / SENSE_VOICE / "model.int8.onnx", f"{RELEASES}/asr-models/{SENSE_VOICE}.tar.bz2"),
         (MODELS / SEGMENTATION / "model.onnx", f"{RELEASES}/speaker-segmentation-models/{SEGMENTATION}.tar.bz2"),
